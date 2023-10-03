@@ -62,19 +62,19 @@ const headCells = [
     label: 'GPS location',
   },
   {
-    id: 'detected_speed',
+    id: 'detectedspeed',
     numeric: true,
     disablePadding: false,
     label: 'Detected Speed',
   },
   {
-    id: 'speed_limit',
+    id: 'speedlimit',
     numeric: true,
     disablePadding: false,
     label: 'Speed Limit',
   },
   {
-    id: 'date_time',
+    id: 'datetime',
     numeric: true,
     disablePadding: false,
     label: 'Time and Date (GMT)',
@@ -96,10 +96,10 @@ function EnhancedTableHead(props) {
 
   return (
     <TableHead>
-      <TableRow>
+      <TableRow bgcolor="#7D7C7C">
         <TableCell padding="checkbox">
           <Checkbox
-            color="primary"
+            color= {'primarylight'}
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
@@ -145,7 +145,6 @@ EnhancedTableHead.propTypes = {
 
 function EnhancedTableToolbar(props) {
   const { numSelected } = props;
-
   return (
     <Toolbar
       sx={{
@@ -171,7 +170,7 @@ function EnhancedTableToolbar(props) {
           sx={{ 
             flex: '1 1 100%',
             fontWeight: 'bold',
-            color: '#ba0003'
+            color: '#313D5A'
           }}
           variant="h6"
           id="tableTitle"
@@ -179,6 +178,7 @@ function EnhancedTableToolbar(props) {
         >
           Registery of Traffic Speeding Violations
         </Typography>
+        
       )}
 
       {numSelected > 0 ? (
@@ -198,7 +198,7 @@ EnhancedTableToolbar.propTypes = {
 
 export default function EnhancedTable({rows}) {
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('calories');
+  const [orderBy, setOrderBy] = React.useState('date_time');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -211,19 +211,19 @@ export default function EnhancedTable({rows}) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
+      const newSelected = rows.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -261,7 +261,7 @@ export default function EnhancedTable({rows}) {
       ),
     [order, orderBy, page, rowsPerPage,rows],
   );
-
+  
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
@@ -288,7 +288,6 @@ export default function EnhancedTable({rows}) {
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.id)}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
@@ -298,7 +297,8 @@ export default function EnhancedTable({rows}) {
                   >
                     <TableCell padding="checkbox">
                       <Checkbox
-                        color="primary"
+                        color="primarylight"
+                        onClick={(event) => handleClick(event, row.id)}
                         checked={isItemSelected}
                         inputProps={{
                           'aria-labelledby': labelId,
@@ -313,8 +313,8 @@ export default function EnhancedTable({rows}) {
                     >
                       {row.location}
                     </TableCell>
-                    <TableCell align="left">{row.speedlimit}</TableCell>
                     <TableCell align="left">{row.detectedspeed}</TableCell>
+                    <TableCell align="left">{row.speedlimit}</TableCell>
                     <TableCell align="left">{formatDate(row.datetime)}</TableCell>
                     <TableCell align="left">{row.image}</TableCell>
                   </TableRow>
