@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
+import { Navigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -102,11 +103,16 @@ export default function MiniDrawer({pages}) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [activePage, setPage] = React.useState(pages['Registery']);
+
+  if (!localStorage.getItem('user')) {
+    return <Navigate to="/" replace />
+  }
   
   const selectPage = (text) =>{ 
     if(text === 'Log Out'){
-        console.log("logout");
-        return;
+        localStorage.removeItem('user');
+        window.location.reload(false);
+        return <Navigate to="/" replace />;
     }
     setPage(pages[text.replace(" ","")])
   };
@@ -123,7 +129,7 @@ export default function MiniDrawer({pages}) {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open} color="primary">
-        <Toolbar>
+        <Toolbar style={{ display: 'flex', justifyContent: 'space-between' }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -136,8 +142,11 @@ export default function MiniDrawer({pages}) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h5" noWrap component="div" align="right">
+          <Typography inline variant="h5" noWrap component="div" >
             DJI Traffic Monitoring
+          </Typography>
+          <Typography inline variant="h5" noWrap component="div">
+            welcome, {JSON.parse(localStorage.getItem('user')).username}
           </Typography>
         </Toolbar>
       </AppBar>
