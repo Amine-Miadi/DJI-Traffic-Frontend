@@ -9,36 +9,29 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../utils/MuiThemes'
-import axios from 'axios'
+import authService from '../services/auth.service';
 import {useState} from 'react'
+import { Alert } from '@mui/material';
+import loginImage from "/src/assets/login_wallpaper.jpg";
+
 
 const Login = () => {
   const [visibility,setVisibility] = useState(false);
-  const [error,setError] = useState("");
+  const [error,setError] = useState(<></>);
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    try {
-        const response = await axios.post('https://concise-emblem-395909.oa.r.appspot.com/api/auth/signin',{
-            username: data.get('email'),
-            password: data.get('password')
-        });
-        localStorage.setItem("user", JSON.stringify(response.data));
-        window.location.reload(false);
-    } catch (error) {
-        switch(error.response.status) {
+    const rescode = await authService.login(data.get('email'),data.get('password'))
+    switch(rescode) {
             case 418:
-                setError("User name not found")
+                setError(<Alert severity="error">Username not found!</Alert>)
                 setVisibility(true)
               break;
             case 419:
-                setError("Incorrect Password")
+              setError(<Alert severity="error">Incorrect Password!</Alert>)
                 setVisibility(true)
               break;
-          }
-    }
-    
-    
+        }
   };
 
   return (
@@ -51,7 +44,7 @@ const Login = () => {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url(src/assets/login_wallpaper.jpg)',
+            backgroundImage: `url(${loginImage})`,
             backgroundRepeat: 'no-repeat',
             backgroundColor: (t) =>
               t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -96,7 +89,6 @@ const Login = () => {
                 id="password"
                 autoComplete="current-password"
               />
-              {visibility? <div style={{color : 'red'} }>{error}</div> : <div></div>}
               <Button
                 type="submit"
                 fullWidth
@@ -105,6 +97,7 @@ const Login = () => {
               >
                 Sign In
               </Button>
+              {visibility? <div style={{color : 'red'} }>{error}</div> : <div></div>}
             </Box>
           </Box>
         </Grid>

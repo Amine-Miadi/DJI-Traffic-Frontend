@@ -17,12 +17,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 //icons
 import FolderIcon from '@mui/icons-material/Folder';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import InfoIcon from '@mui/icons-material/Info';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import DronewayIcon from './svgdroneway';
 
 
 const drawerWidth = 240;
@@ -94,7 +94,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-export default function MiniDrawer({pages}) {
+export default function MiniDrawer({pages,navigate}) {
 
   React.useEffect(()=>{
     setPage(pages['Registery'])
@@ -111,7 +111,7 @@ export default function MiniDrawer({pages}) {
   const selectPage = (text) =>{ 
     if(text === 'Log Out'){
         localStorage.removeItem('user');
-        window.location.reload(false);
+        navigate("/")
         return <Navigate to="/" replace />;
     }
     setPage(pages[text.replace(" ","")])
@@ -142,10 +142,10 @@ export default function MiniDrawer({pages}) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography inline variant="h5" noWrap component="div" >
+          <Typography  variant="h5" noWrap component="div" >
             DJI Traffic Monitoring
           </Typography>
-          <Typography inline variant="h5" noWrap component="div">
+          <Typography  variant="h5" noWrap component="div">
             welcome, {JSON.parse(localStorage.getItem('user')).username}
           </Typography>
         </Toolbar>
@@ -158,7 +158,7 @@ export default function MiniDrawer({pages}) {
         </DrawerHeader>
         <Divider />
         <List>
-          {['Registery', 'Analytics', 'Droneway', 'About'].map((text) => (
+          {['Registery', 'Droneway', 'About'].map((text) => (
             <ListItem key={text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton onClick={()=>{selectPage(text)}}
                 sx={{
@@ -175,9 +175,8 @@ export default function MiniDrawer({pages}) {
                   }}
                 >
                   {text === 'Registery' ? <FolderIcon /> : <></>}
-                  {text === 'Analytics' ? <AnalyticsIcon /> : <></>}
-                  {text === 'About' ? <InfoIcon /> : <></>}
-                  {text === 'Droneway' ? <InfoIcon /> : <></>}
+                  {text === 'About' ?  <InfoIcon /> : <></>}
+                  {text === 'Droneway' ?  <DronewayIcon height = {25} width = {25}/> : <></>}
                 </ListItemIcon>
                 <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>

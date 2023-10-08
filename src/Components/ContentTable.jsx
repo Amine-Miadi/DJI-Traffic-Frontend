@@ -19,8 +19,14 @@ import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { visuallyHidden } from '@mui/utils';
 import formatDate from '../utils/formatDate';
+import deleteEntries from '../services/deleteEntries.service';
+import authService from '../services/auth.service';
+import { CircularProgress } from '@mui/material';
+import { useState } from 'react';
 
 
+
+const useraccount = authService.getCurrentUser();
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -37,6 +43,7 @@ function getComparator(order, orderBy) {
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
+
 
 // Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
 // stableSort() brings sort stability to non-modern browsers (notably IE11). If you
@@ -97,17 +104,19 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow bgcolor="#7D7C7C">
-        <TableCell padding="checkbox">
-          <Checkbox
-            color= {'primarylight'}
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all desserts',
-            }}
-          />
-        </TableCell>
+        {!useraccount.roles.includes("ROLE_ADMIN") ? <TableCell padding="checkbox"></TableCell> :
+          <TableCell padding="checkbox">
+            <Checkbox
+              color= {'primarylight'}
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+              inputProps={{
+                'aria-label': 'select all desserts',
+              }}
+            />
+          </TableCell>
+        }
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -143,8 +152,13 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
+function EnhancedTableToolbar({selected}) {
+  const [loading,setLoading] = useState(false);
+
+  const  numSelected  = selected.length;
+
+  
+
   return (
     <Toolbar
       sx={{
@@ -183,9 +197,19 @@ function EnhancedTableToolbar(props) {
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          {!loading ? 
+          <IconButton onClick={async ()=>{
+              console.log(selected)
+              setLoading(true)
+              await deleteEntries(selected);
+              setLoading(false)
+              window.location.reload(false);
+            }
+          }> 
             <DeleteIcon />
           </IconButton>
+          : <CircularProgress color="inherit" />}
+          
         </Tooltip>
       ) : (<></>)}
     </Toolbar>
@@ -193,7 +217,7 @@ function EnhancedTableToolbar(props) {
 }
 
 EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
+  selected: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default function EnhancedTable({rows}) {
@@ -265,7 +289,7 @@ export default function EnhancedTable({rows}) {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar selected={selected}/>
         <TableContainer>
           <Table
             sx={{ width: 'FitScreen'}}
@@ -295,21 +319,24 @@ export default function EnhancedTable({rows}) {
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primarylight"
-                        onClick={(event) => handleClick(event, row.id)}
-                        checked={isItemSelected}
-                        inputProps={{
-                          'aria-labelledby': labelId,
-                        }}
-                      />
-                    </TableCell>
+                    {!useraccount.roles.includes("ROLE_ADMIN") ? <TableCell padding="checkbox"></TableCell> :
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          color="primarylight"
+                          onClick={(event) => handleClick(event, row.id)}
+                          checked={isItemSelected}
+                          inputProps={{
+                            'aria-labelledby': labelId,
+                          }}
+                        />
+                      </TableCell>
+                    }
                     <TableCell
                       component="th"
                       id={labelId}
                       scope="row"
                       padding="none"
+                      
                     >
                       {row.location}
                     </TableCell>
